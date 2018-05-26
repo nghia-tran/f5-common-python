@@ -29,6 +29,10 @@ f5.bigip module
         resource.OrganizingCollection
         resource.Collection
         resource.Resource
+        resource.UnnamedResource
+        resource.AsmResource
+        resource.AsmTaskResource
+        resource.TaskResource
         resource.PathElement
 
     Resource Exceptions
@@ -41,6 +45,7 @@ f5.bigip module
         resource.KindTypeMismatch
         resource.DeviceProvidesIncompatibleKey
         resource.InvalidResource
+        resource.MissingRequiredCommandParameter
         resource.MissingRequiredCreationParameter
         resource.MissingRequiredReadParameter
         resource.UnregisteredKind
@@ -57,9 +62,14 @@ f5.bigip module
     .. autosummary::
 
         mixins.ToDictMixin
-        mixins.LazyAttributesMixin
+        mixins.LazyAttributeMixin
         mixins.ExclusiveAttributesMixin
-        mixins.UnnamedResourceMixin
+        mixins.CheckExistenceMixin
+        mixins.CommandExecutionMixin
+        mixins.DeviceMixin
+        mixins.FileDownloadMixin
+        mixins.FileUploadMixin
+        mixins.AsmFileMixin
         mixins.LazyAttributesRequired
 
 

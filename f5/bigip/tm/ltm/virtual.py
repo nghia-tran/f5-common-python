@@ -30,8 +30,10 @@ REST Kind
 from distutils.version import LooseVersion
 
 from f5.bigip.mixins import CheckExistenceMixin
+from f5.bigip.mixins import ExclusiveAttributesMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.bigip.resource import Stats
 from f5.sdk_exception import NonExtantVirtualPolicy
 from f5.sdk_exception import UnregisteredKind
 from f5.sdk_exception import URICreationCollision
@@ -43,12 +45,12 @@ class Virtuals(Collection):
     """BIG-IP® LTM virtual collection"""
     def __init__(self, ltm):
         super(Virtuals, self).__init__(ltm)
-        self._meta_data['allowed_lazy_attributes'] = [Virtual]
+        self._meta_data['allowed_lazy_attributes'] = [Virtual, Stats]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual:virtualstate': Virtual}
 
 
-class Virtual(Resource):
+class Virtual(Resource, ExclusiveAttributesMixin):
     """BIG-IP® LTM virtual resource"""
     def __init__(self, virtual_s):
         super(Virtual, self).__init__(virtual_s)
@@ -57,6 +59,8 @@ class Virtual(Resource):
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:virtual:profiles:profilescollectionstate': Profiles_s,
              'tm:ltm:virtual:policies:policiescollectionstate': Policies_s}
+        self._meta_data['exclusive_attributes'].append(('enabled', 'disabled'))
+        self._meta_data['exclusive_attributes'].append(('vlansEnabled', 'vlansDisabled'))
 
     def load(self, **kwargs):
         result = self._load(**kwargs)

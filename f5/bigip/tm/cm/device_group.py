@@ -27,8 +27,16 @@ REST Kind
     ``tm:cm:device-group:*``
 """
 
+from distutils.version import LooseVersion
 from f5.bigip.resource import Collection
 from f5.bigip.resource import Resource
+from f5.sdk_exception import UnsupportedMethod
+
+
+def fqdn_name(partition, value):
+    if value is not None and not value.startswith('/'):
+        return '/{0}/{1}'.format(partition, value)
+    return value
 
 
 class Device_Groups(Collection):
@@ -45,7 +53,6 @@ class Device_Group(Resource):
     def __init__(self, device_groups):
         super(Device_Group, self).__init__(device_groups)
         self._meta_data['read_only_attributes'].append('type')
-        self._meta_data['required_creation_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] =\
             'tm:cm:device-group:device-groupstate'
         self._meta_data['attribute_registry'] = {
@@ -104,4 +111,51 @@ class Devices(Resource):
         super(Devices, self).__init__(devices_s)
         self._meta_data['required_json_kind'] =\
             'tm:cm:device-group:devices:devicesstate'
-        self._meta_data['required_creation_parameters'].update(('partition',))
+
+    def _fixup_name(self, kwargs):
+        # Name munging is required < 11.6.0 and on versions (and sub versions)
+        # of 11.6.1.
+        # TODO(Remove this when 11.6.1 is no longer supported)
+        if 'name' in kwargs:
+            kwargs['name'] = fqdn_name('Common', kwargs['name'])
+        else:
+            self.__dict__['name'] = fqdn_name('Common', self.__dict__['name'])
+
+    def update(self, **kwargs):
+        raise UnsupportedMethod(
+            "%s does not support the update method" % self.__class__.__name__)
+
+    def modify(self, **kwargs):
+        raise UnsupportedMethod(
+            "%s does not support the modify method" % self.__class__.__name__)
+
+    def create(self, **kwargs):
+        # Name munging is required < 11.6.0 and on versions (and sub versions)
+        # of 11.6.1.
+        # TODO(Remove this when 11.6.1 is no longer supported)
+        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+        tmos_v = LooseVersion(tmos_v)
+        if tmos_v < LooseVersion('11.6.0'):
+            self._fixup_name(kwargs)
+        elif tmos_v > LooseVersion('11.6.0') and tmos_v < LooseVersion('12.0.0'):
+            self._fixup_name(kwargs)
+        return self._create(**kwargs)
+
+    def exists(self, **kwargs):
+        # Name munging is required < 11.6.0 and on versions (and sub versions)
+        # of 11.6.1.
+        # TODO(Remove this when 11.6.1 is no longer supported)
+        kwargs['partition'] = 'Common'
+        return self._exists(**kwargs)
+
+    def delete(self, **kwargs):
+        # Name munging is required < 11.6.0 and on versions (and sub versions)
+        # of 11.6.1.
+        # TODO(Remove this when 11.6.1 is no longer supported)
+        tmos_v = self._meta_data['bigip']._meta_data['tmos_version']
+        tmos_v = LooseVersion(tmos_v)
+        if tmos_v < LooseVersion('11.6.0'):
+            self._fixup_name(kwargs)
+        elif tmos_v > LooseVersion('11.6.0') and tmos_v < LooseVersion('12.0.0'):
+            self._fixup_name(kwargs)
+        return self._delete(**kwargs)

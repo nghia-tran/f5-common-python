@@ -18,15 +18,16 @@
 """BIG-IP® LTM monitor submodule.
 
 REST URI
-    ``http://localhost/mgmt/tm/ltm/monitors/``
+    ``http://localhost/mgmt/tm/ltm/monitor/``
 
 GUI Path
     ``Local Traffic --> Monitors``
 
 REST Kind
-    ``tm:ltm:monitors*``
+    ``tm:ltm:monitor*``
 """
 
+from f5.bigip.mixins import UpdateMonitorMixin
 from f5.bigip.resource import Collection
 from f5.bigip.resource import OrganizingCollection
 from f5.bigip.resource import Resource
@@ -49,10 +50,10 @@ class Monitor(OrganizingCollection):
             Inbands,
             Ldaps,
             Module_Scores,
+            Mqtts,
             Mssqls,
             Mysqls,
             Nntps,
-            Nones,
             Oracles,
             Pop3s,
             Postgresqls,
@@ -84,26 +85,6 @@ class Https(Collection):
         self._meta_data['allowed_lazy_attributes'] = [Http]
         self._meta_data['attribute_registry'] =\
             {'tm:ltm:monitor:http:httpstate': Http}
-
-
-class UpdateMonitorMixin(object):
-    def update(self, **kwargs):
-        """Change the configuration of the resource on the device.
-
-        This method uses Http PUT alter the service state on the device.
-
-        The attributes of the instance will be packaged as a dictionary.  That
-        dictionary will be updated with kwargs.  It is then submitted as JSON
-        to the device.  Various edge cases are handled:
-
-        * read-only attributes that are unchangeable are removed
-        * ``defaultsFrom`` attribute is removed from JSON before the PUT
-
-        :param kwargs: keys and associated values to alter on the device
-
-        """
-        self.__dict__.pop('defaultsFrom', '')
-        self._update(**kwargs)
 
 
 class Http(UpdateMonitorMixin, Resource):
@@ -320,7 +301,7 @@ class Module_Score(UpdateMonitorMixin, Resource):
     def __init__(self, gateway_icmps):
         super(Module_Score, self).__init__(gateway_icmps)
         self._meta_data['required_creation_parameters'].update(
-            ('snmp-ip-address',))
+            ('snmpIpAddress',))
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:module-score:module-scorestate'
 
@@ -340,6 +321,21 @@ class Mysql(UpdateMonitorMixin, Resource):
         super(Mysql, self).__init__(mysqls)
         self._meta_data['required_json_kind'] =\
             'tm:ltm:monitor:mysql:mysqlstate'
+
+
+class Mqtts(Collection):
+    def __init__(self, monitor):
+        super(Mqtts, self).__init__(monitor)
+        self._meta_data['allowed_lazy_attributes'] = [Mqtt]
+        self._meta_data['attribute_registry'] =\
+            {'tm:ltm:monitor:mqtt:mqttstate': Mqtt}
+
+
+class Mqtt(UpdateMonitorMixin, Resource):
+    def __init__(self, mqtts):
+        super(Mqtt, self).__init__(mqtts)
+        self._meta_data['required_json_kind'] =\
+            'tm:ltm:monitor:mqtt:mqttstate'
 
 
 class Mssqls(Collection):

@@ -25,6 +25,7 @@ except ImportError:
 
 try:
     import signal
+    from signal import SIGALRM
     HAS_SIGNAL = True
 except ImportError:
     HAS_SIGNAL = False
@@ -64,7 +65,8 @@ class BaseManagement(PathElement):
             icontrol_version=kwargs.pop('icontrol_version', ''),
             token=kwargs.pop('token', False),
             verify=kwargs.pop('verify', False),
-            auth_provider=kwargs.pop('auth_provider', None)
+            auth_provider=kwargs.pop('auth_provider', None),
+            debug=kwargs.pop('debug', False)
         )
         if kwargs:
             raise TypeError('Unexpected **kwargs: %r' % kwargs)
@@ -88,6 +90,7 @@ class BaseManagement(PathElement):
             params['token'] = kwargs['token']
 
         result = iControlRESTSession(**params)
+        result.debug = kwargs['debug']
         return result
 
     def configure_meta_data(self, *args, **kwargs):
@@ -114,7 +117,7 @@ class BaseManagement(PathElement):
         connect = self._meta_data['bigip']._meta_data['icr_session']
         base_uri = self._meta_data['uri'] + 'tm/sys/'
         if HAS_SIGNAL:
-            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.signal(SIGALRM, timeout_handler)
             signal.alarm(int(self.args['timeout']))
             response = connect.get(base_uri)
             signal.alarm(0)
@@ -138,6 +141,21 @@ class BaseManagement(PathElement):
         if self._meta_data['tmos_version'] is None:
             self._meta_data['tmos_version'] = self._get_tmos_version()
         return self._meta_data['tmos_version']
+
+    @property
+    def debug(self):
+        return self.icrs.debug
+
+    @debug.setter
+    def debug(self, value):
+        self.icrs.debug = value
+
+    @property
+    def debug_output(self):
+        result = []
+        if self.icrs.debug_output:
+            result += self.icrs.debug_output
+        return result
 
 
 class ManagementRoot(BaseManagement):

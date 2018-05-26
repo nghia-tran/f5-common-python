@@ -39,31 +39,31 @@ from requests.exceptions import HTTPError
 class Pools(object):
     """BIG-IP® GTM Pool factory
 
-       The GTM Pool factory object is used to provide a consistent user
-       experience across the SDK, while supporting the breaking changes in
-       the BIG-IP APIs.
+    The GTM Pool factory object is used to provide a consistent user
+    experience across the SDK, while supporting the breaking changes in
+    the BIG-IP APIs.
 
-       Between the 11.x and 12.x releases of BIG-IP, the REST endpoint for
-       Pool changed from a Collection to an OrganizingCollection. The
-       result is that breaking changes occurred in the API.
+    Between the 11.x and 12.x releases of BIG-IP, the REST endpoint for
+    Pool changed from a Collection to an OrganizingCollection. The
+    result is that breaking changes occurred in the API.
 
-       This breakage led to a discussion on naming conventions because there
-       appeared to be a conflict now. For example, depending on your version,
-       only one of the following would work.
+    This breakage led to a discussion on naming conventions because there
+    appeared to be a conflict now. For example, depending on your version,
+    only one of the following would work.
 
-       For 11.x,
+    For 11.x,
 
-           tm.gtm.pools.pool.load(name='foo')
+        tm.gtm.pools.pool.load(name='foo')
 
-       For 12.x,
+    For 12.x,
 
-           tm.gtm.pools.a_s.a.load(name='foo')
+        tm.gtm.pools.a_s.a.load(name='foo')
 
-       but not both. To stick with a consistent user experience, we decided
-       to override the __new__ method to support both examples above. The SDK
-       automatically detects which one to use based on the BIG-IP you are
-       communicating with.
-       """
+    but not both. To stick with a consistent user experience, we decided
+    to override the __new__ method to support both examples above. The SDK
+    automatically detects which one to use based on the BIG-IP you are
+    communicating with.
+    """
     def __new__(cls, container):
         tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
@@ -75,11 +75,11 @@ class Pools(object):
 class Members_s(object):
     """BIG-IP® GTM Members_s factory
 
-        The GTM Members_s factory is used here for code readability
-        and maintenance purposes, to allow us to stay in conventions already
-        set in this SDK, and at the same time accommodate changes between v11
-        and v12 versions of Members_s sub-collection
-        """
+    The GTM Members_s factory is used here for code readability
+    and maintenance purposes, to allow us to stay in conventions already
+    set in this SDK, and at the same time accommodate changes between v11
+    and v12 versions of Members_s sub-collection
+    """
     def __new__(cls, container):
         tmos_v = container._meta_data['bigip']._meta_data['tmos_version']
         if LooseVersion(tmos_v) < LooseVersion('12.0.0'):
@@ -186,12 +186,11 @@ class MembersCollectionSrv(Collection):
 class Member(object):
     """BIG-IP® GTM Members factory
 
-        The GTM Members factory is used here for code readability
-        and maintenance purposes, to allow us to stay in conventions already
-        set in this SDK, and at the same time accommodate changes between v11
-        and v12 versions of Members resource
-        """
-
+    The GTM Members factory is used here for code readability
+    and maintenance purposes, to allow us to stay in conventions already
+    set in this SDK, and at the same time accommodate changes between v11
+    and v12 versions of Members resource
+    """
     def __new__(cls, container):
         if container._meta_data['required_json_kind'] == \
                 'tm:gtm:pool:members:memberscollectionstate':
@@ -224,6 +223,22 @@ class MembersResource_v11(Resource):
         self._meta_data['required_creation_parameters'].update(('partition',))
         self._meta_data['required_json_kind'] = \
             'tm:gtm:pool:members:membersstate'
+
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
 
 
 class MembersResourceA(Resource):
@@ -292,6 +307,22 @@ class MembersResourceA(Resource):
         else:
             return self._create(**kwargs)
 
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
+
 
 class MembersResourceAAAA(Resource):
     """v12.x BIG-IP® GTM AAAA pool members resource"""
@@ -359,6 +390,22 @@ class MembersResourceAAAA(Resource):
         else:
             return self._create(**kwargs)
 
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
+
 
 class MembersResourceCname(Resource):
     """v12.x BIG-IP® GTM CNAME pool members resource"""
@@ -368,6 +415,22 @@ class MembersResourceCname(Resource):
         self._meta_data['required_json_kind'] = \
             'tm:gtm:pool:cname:members:membersstate'
 
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
+
 
 class MembersResourceMx(Resource):
     """v12.x BIG-IP® GTM MX pool members resource"""
@@ -376,6 +439,22 @@ class MembersResourceMx(Resource):
         super(MembersResourceMx, self).__init__(members_s)
         self._meta_data['required_json_kind'] = \
             'tm:gtm:pool:mx:members:membersstate'
+
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
 
 
 class MembersResourceNaptr(Resource):
@@ -388,6 +467,22 @@ class MembersResourceNaptr(Resource):
         self._meta_data['required_creation_parameters'].update(
             ('flags', 'service'))
 
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
+
 
 class MembersResourceSrv(Resource):
     """v12.x BIG-IP® GTM SRV pool members resource"""
@@ -398,6 +493,22 @@ class MembersResourceSrv(Resource):
             'tm:gtm:pool:srv:members:membersstate'
         self._meta_data['required_creation_parameters'].update(
             ('port',))
+
+    def load(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._load(**kwargs)
+
+    def exists(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._exists(**kwargs)
+
+    def refresh(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._refresh(**kwargs)
+
+    def delete(self, **kwargs):
+        kwargs['transform_name'] = True
+        return self._delete(**kwargs)
 
 
 class PoolCollection(Collection):
@@ -438,8 +549,8 @@ class PoolOrganizingCollection(OrganizingCollection):
 class A_s(Collection):
     """v12.x BIG-IP® A pool collection.
 
-        Class name needed changing due to
-        'as' being reserved python keyword
+    Class name needed changing due to
+    'as' being reserved python keyword
     """
     def __init__(self, pool):
         super(A_s, self).__init__(pool)
